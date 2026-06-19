@@ -78,10 +78,17 @@ public class DefaultProjectAssetGenerator implements ProjectAssetGenerator<Path>
 	}
 
 	private Path resolveProjectDirectory(Path rootDir, ProjectDescription description) {
-		if (description.getBaseDirectory() != null) {
-			return rootDir.resolve(description.getBaseDirectory());
+		String baseDirectory = description.getBaseDirectory();
+		if (baseDirectory == null) {
+			return rootDir;
 		}
-		return rootDir;
+		Path resolved = rootDir.resolve(baseDirectory).normalize();
+		if (!resolved.startsWith(rootDir.normalize())) {
+			throw new ProjectGenerationException(
+					"Invalid baseDirectory '%s': must be contained within the project root directory"
+						.formatted(baseDirectory));
+		}
+		return resolved;
 	}
 
 }

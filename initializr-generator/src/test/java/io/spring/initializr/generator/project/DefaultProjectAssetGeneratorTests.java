@@ -86,6 +86,38 @@ class DefaultProjectAssetGeneratorTests {
 	}
 
 	@Test
+	void generationRejectsAbsoluteBaseDirectory(@TempDir Path tempDir) throws Exception {
+		MutableProjectDescription description = new MutableProjectDescription();
+		description.setBaseDirectory("/etc/absolute");
+		ProjectDirectoryFactory factory = mock(ProjectDirectoryFactory.class);
+		given(factory.createProjectDirectory(description)).willReturn(tempDir);
+		assertThatThrownBy(() -> {
+			try (ProjectGenerationContext context = new ProjectGenerationContext()) {
+				context.registerBean(ProjectDescription.class, () -> description);
+				context.refresh();
+				new DefaultProjectAssetGenerator(factory).generate(context);
+			}
+		}).isInstanceOf(ProjectGenerationException.class)
+			.hasMessageContaining("must be contained within the project root directory");
+	}
+
+	@Test
+	void generationRejectsPathTraversalBaseDirectory(@TempDir Path tempDir) throws Exception {
+		MutableProjectDescription description = new MutableProjectDescription();
+		description.setBaseDirectory("../dirup");
+		ProjectDirectoryFactory factory = mock(ProjectDirectoryFactory.class);
+		given(factory.createProjectDirectory(description)).willReturn(tempDir);
+		assertThatThrownBy(() -> {
+			try (ProjectGenerationContext context = new ProjectGenerationContext()) {
+				context.registerBean(ProjectDescription.class, () -> description);
+				context.refresh();
+				new DefaultProjectAssetGenerator(factory).generate(context);
+			}
+		}).isInstanceOf(ProjectGenerationException.class)
+			.hasMessageContaining("must be contained within the project root directory");
+	}
+
+	@Test
 	void generationWithBaseDirCreatesBaseDirStructure(@TempDir Path tempDir) throws IOException {
 		MutableProjectDescription description = new MutableProjectDescription();
 		description.setBaseDirectory("my-project");
