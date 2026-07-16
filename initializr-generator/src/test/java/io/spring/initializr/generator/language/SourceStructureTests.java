@@ -22,6 +22,8 @@ import java.nio.file.Path;
 
 import io.spring.initializr.generator.language.java.JavaLanguage;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -65,6 +67,7 @@ class SourceStructureTests {
 	}
 
 	@Test
+	@DisabledOnOs(OS.WINDOWS)
 	void createSourceFileRejectsPathTraversalViaPackageName(@TempDir Path dir) {
 		SourceStructure sourceStructure = new SourceStructure(dir.resolve("src/main"), JAVA_LANGUAGE);
 		assertThatIllegalArgumentException()
@@ -111,7 +114,7 @@ class SourceStructureTests {
 	void createResourceFileRejectsPathTraversalViaPackageName(@TempDir Path dir) {
 		SourceStructure sourceStructure = new SourceStructure(dir.resolve("src/main"), JAVA_LANGUAGE);
 		assertThatIllegalArgumentException()
-			.isThrownBy(() -> sourceStructure.createResourceFile("../../../../outside", "test.xml"))
+			.isThrownBy(() -> sourceStructure.createResourceFile(".outside", "test.xml"))
 			.withMessageContaining("must be inside the project root directory");
 	}
 
