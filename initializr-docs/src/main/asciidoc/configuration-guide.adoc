@@ -1180,6 +1180,8 @@ Spring Initializr has an auto-configuration for the requested caches if you are 
 use a JCache (JSR-107) implementation. By default, the service metadata cache and the
 dependency metadata cache are configured with an expiration policy that allows entries to
 remain in the cache for 10 minutes.
+The caches don't have a max size by default — it is recommended that you configure the max
+size of the caches in your cache configuration.
 
 NOTE: The caches are created with an auto-configured `JCacheManagerCustomizer` with order `0` and only if they don't exist already.
 You can contribute a bean of the same type with a lower `@Order` to override some of the configuration to suit your specific needs.
